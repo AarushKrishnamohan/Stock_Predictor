@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stock Predictor</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+  </head>
+  <body>
+    <h1 class="text-center mt-4">Stock Predictor</h1>
+
+    <div class="container card shadow p-4">
+       <form action="" method="post" id="symbolForm">
+        {% csrf_token %}
+            <div class="row">
+               
+                    <label for="symbol" class="mb-2">Choose a symbol: </label>
+                    <select name="symbol" id="myDropdown" class="custom-dropdown form-select w-25">
+                        {% for symbol in symbols %}
+                            <option value="{{ symbol.symbol }}">{{ symbol.symbol }}</option>
+                        {% endfor %}
+                    </select>
+
+            </div>
+            <div class="row mt-2 w-25">
+                <button class="ps-2 btn btn-primary" type="submit">Generate Data</button>
+            </div>
+       </form>
+       <hr>
+       <!-- Spinner Container -->
+       <div id="loading-container" class="d-none d-flex flex-column justify-content-center align-items-center">
+        <div class="spinner-border">
+          <span class="sr-only"></span>
+        </div>
+        <p>Generating data...</p>
+       </div>
+       <div id="data-container" class="d-flex flex-row">
+
+         <div class="container" id="graph-container">
+           <p class="text-secondary">Click on the <b>Generate Data</b> button to generate data.</p>
+         </div>
+
+         <div id="summary-container">
+          <h3>Summary</h3>
+          <p class="ticker-symbol">AAPL</p>
+          <p class="stock-price fs-3">186.5 <span class="text-secondary fs-6">USD</span></p>
+          <p class="stock-percentage text-danger">−1.01 (0.54%)</p>
+         </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+    <script>
+      $(document).ready(function(){
+        $("#symbolForm").submit(function(e){
+          e.preventDefault()
+          // Make the loader visible
+          let loading_container = $('#loading-container') 
+          loading_container.removeClass('d-none')
+
+          let csrfToken = $("input[name='csrfmiddlewaretoken']").val()
+          console.log("Form testing...")
+
+          let formData = $('#symbolForm').serialize()
+
+          $.ajax({
+            url: '',
+            type: 'POST',
+            headers: {'X-CSRFToken': csrfToken},
+            data: formData,
+            success: function(response){
+              console.log(response.message)
+              // Make the loader disappear again
+              loading_container.addClass('d-none')
+              $('#graph-container').html(response.message)
+              $('.ticker-symbol').text(response.symbol)
+              $('.stock-price').text(response.prediction.toFixed(2))
+              if(response.percentage > 0){
+                $('.stock-percentage').removeClass('text-danger')
+                $('.stock-percentage').addClass('text-success')
+              }
+              $('.stock-percentage').text(response.percentage.toFixed(2))
+            }
+          })
+        })
+      })
+    </script>
+    <script>
+      // Initialize Select2 on the dropdown element
+      $(document).ready(function(){
+        $('#myDropdown').select2();
+      })
+    </script>
+  </body>
+</html>
+
+
