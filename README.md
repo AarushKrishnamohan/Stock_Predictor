@@ -11,9 +11,3 @@ The stock market is inherently unpredictable and subject to high risk. While thi
 ## Contact
 
 For any queries regarding this project, please email aarushk115@gmail.com
-
-
-git status
-git add .
-git commit -m "UPDATED README file"
-git push -u origin main
